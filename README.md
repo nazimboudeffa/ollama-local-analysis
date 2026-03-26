@@ -4,14 +4,26 @@ An automated forex trading analysis system that uses local AI models (via Ollama
 
 ## ✨ Features
 
+### Two Analysis Approaches:
+
+#### 1️⃣ **Technical Indicators Analysis** (`trading-analysis.ipynb`)
+- RSI (Relative Strength Index) with oversold/overbought detection
+- MACD (Moving Average Convergence Divergence)
+- 20-period Moving Average for trend detection
+- Focuses on mathematical indicators and momentum
+
+#### 2️⃣ **Price Action Analysis** (`price-action-analysis.ipynb`) 🆕
+- Candlestick pattern detection (Doji, Hammer, Engulfing, Shooting Star)
+- Support and Resistance level identification
+- Market structure analysis (Higher Highs, Lower Lows)
+- Pure price movement focus without indicators
+- Entry/Stop-Loss/Take-Profit suggestions
+
+### Common Features:
 - **Local AI Analysis**: Uses Ollama with Qwen 3:4B model for trading signal generation
-- **Technical Indicators**: 
-  - RSI (Relative Strength Index) with oversold/overbought detection
-  - MACD (Moving Average Convergence Divergence)
-  - 20-period Moving Average for trend detection
 - **Smart Caching**: Caches market data for 5 minutes to avoid redundant API calls
 - **Session-Aware**: Considers forex trading sessions (London, New York, Asian)
-- **Visual Analytics**: Beautiful matplotlib charts with technical indicators
+- **Visual Analytics**: Beautiful matplotlib charts with key levels
 - **Human-Readable Output**: Color-coded signals with confidence levels and recommendations
 
 ## 🔧 Requirements
@@ -81,7 +93,7 @@ MODEL = "qwen3:4b"  # Change to your preferred Ollama model
 
 # Cache settings
 CACHE_DIR = Path("data_cache")
-CACHE_DURATION_MINUTES = 5  # Adjust cache duration (in minutes)
+CACHE_DURATION_MINUTES = 60  # Adjust cache duration (in minutes)
 ```
 
 ### Available Ollama Models
@@ -108,19 +120,21 @@ Then update the `MODEL` variable in Cell 2 of the notebook.
    ollama serve
    ```
 
-2. **Open the notebook**:
+2. **Open a notebook**:
+   
+   For technical indicators analysis:
    ```bash
    jupyter notebook trading-analysis.ipynb
    ```
+   
+   For price action analysis:
+   ```bash
+   jupyter notebook price-action-analysis.ipynb
+   ```
 
-3. **Run all cells** (Cell → Run All) or run them sequentially:
-   - Cell 1-6: Setup and function definitions
-   - Cell 7: Execute analysis and display results
-   - Cell 8: Display charts (optional)
+3. **Run all cells** (Cell → Run All) or run them sequentially
 
-### What You'll See
-
-The analysis output includes:
+### Example Output - Technical Indicators
 
 ```
 ============================================================
@@ -149,16 +163,75 @@ The analysis output includes:
 
 Plus visual charts showing price action, RSI, and MACD.
 
+### Example Output - Price Action
+
+```
+======================================================================
+📊 PRICE ACTION ANALYSIS - EUR/USD
+======================================================================
+
+🏗️  MARKET STRUCTURE:
+   Structure:       Downtrend (Lower Lows)
+   Bias:            Bearish 📉
+   Price Range:     0.45%
+
+💰 CURRENT PRICE:
+   Price:           1.15514
+   Session:         London
+
+🎯 KEY LEVELS:
+   Resistance:      1.15680 (Strong)
+   Distance:        +0.14% 🔴
+   Support:         1.15320 (Medium)
+   Distance:        -0.17% 🟢
+
+🕯️  RECENT CANDLESTICK PATTERNS:
+   • Doji (Indecision)
+   • Bearish Engulfing (Bearish Reversal)
+
+🤖 AI PRICE ACTION ANALYSIS:
+   Signal:          SELL 🔴
+   Confidence:      72% (HIGH)
+   Reason:          Bearish engulfing at resistance level
+   Entry:           1.15500
+   Stop Loss:       1.15700
+   Take Profit:     1.15300
+======================================================================
+```
+
+Plus candlestick chart with support/resistance levels highlighted.
+
 ## 📁 Project Structure
 
 ```
 ollama-local-analysis/
-├── trading-analysis.ipynb   # Main analysis notebook
-├── data_cache/              # Cached market data (auto-created)
-│   └── EURUSD_X_5m_1d.pkl  # Cached EUR/USD data
-├── README.md                # This file
-└── .gitignore              # Git ignore rules
+├── trading-analysis.ipynb      # Technical indicators analysis (RSI, MACD)
+├── price-action-analysis.ipynb # Price action analysis (patterns, S/R levels) 🆕
+├── data_cache/                 # Cached market data (auto-created)
+│   └── EURUSD_X_5m_1d.pkl     # Cached EUR/USD data
+├── requirements.txt            # Python dependencies
+├── README.md                   # This file
+└── .gitignore                 # Git ignore rules
 ```
+
+## 🎯 Which Notebook to Use?
+
+### Use `trading-analysis.ipynb` when:
+- ✓ You prefer indicator-based trading
+- ✓ You want momentum confirmation (RSI, MACD)
+- ✓ You're looking for overbought/oversold conditions
+- ✓ You prefer systematic, rules-based analysis
+
+### Use `price-action-analysis.ipynb` when:
+- ✓ You prefer pure price movement analysis
+- ✓ You want to identify key support/resistance levels
+- ✓ You trade based on candlestick patterns
+- ✓ You need precise entry/stop-loss/take-profit levels
+- ✓ You want to understand market structure
+
+### Use both for:
+- ✓ **Confirmation**: When both approaches agree, signals are stronger
+- ✓ **Complete picture**: Technical + Price Action = comprehensive analysis
 
 ## 🔄 Caching System
 
@@ -272,6 +345,32 @@ ollama pull qwen3:4b
 ### Trend Detection
 - **Uptrend**: Price above 20-period moving average
 - **Downtrend**: Price below 20-period moving average
+
+## 🕯️ Price Action Concepts Explained
+
+### Candlestick Patterns
+
+#### Reversal Patterns
+- **Doji**: Small body, equal length wicks - indicates indecision
+- **Hammer**: Small body at top, long lower wick - bullish reversal signal
+- **Shooting Star**: Small body at bottom, long upper wick - bearish reversal signal
+- **Bullish Engulfing**: Large green candle that engulfs previous red candle - strong bullish signal
+- **Bearish Engulfing**: Large red candle that engulfs previous green candle - strong bearish signal
+
+### Support & Resistance
+- **Support**: Price level where buying pressure prevents further decline
+- **Resistance**: Price level where selling pressure prevents further rise
+- **Strength**: Determined by number of times price touched the level (more touches = stronger)
+
+### Market Structure
+- **Uptrend**: Series of higher highs and higher lows
+- **Downtrend**: Series of lower highs and lower lows
+- **Consolidation**: Price moving sideways in a range
+
+### Trade Management
+- **Entry**: Optimal price to enter the trade
+- **Stop Loss**: Price level to exit if trade goes against you (risk management)
+- **Take Profit**: Target price to secure profits
 
 ## 🤝 Contributing
 
