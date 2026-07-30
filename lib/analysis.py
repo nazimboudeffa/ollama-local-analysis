@@ -73,32 +73,50 @@ def detect_candlestick_patterns(df):
     return patterns
 
 
-def find_support_resistance(df, window=10, threshold=0.0002):
-    levels = []
+def find_support_resistance(df, window=None, threshold=None):
+    if window is None:
+        window = max(3, min(15, len(df) // 40))
+
+    if threshold is None:
+        atr = (df['High'] - df['Low']).rolling(14, min_periods=1).mean().iloc[-1]
+        threshold = atr * 0.4
+    min_threshold = (df['High'].max() - df['Low'].min()) * 0.0008
+    threshold = max(threshold, min_threshold)
+
+    pivot_highs = []
+    pivot_lows = []
 
     for i in range(window, len(df) - window):
-        if df['High'].iloc[i] == df['High'].iloc[i-window:i+window+1].max():
-            level = df['High'].iloc[i]
-            if not any(abs(level - l['level']) / level < threshold for l in levels):
-                touches = sum(abs(df['High'] - level) / level < threshold)
-                levels.append({
-                    'level': level,
-                    'type': 'Resistance',
-                    'touches': touches,
-                    'strength': 'Strong' if touches >= 3 else 'Medium' if touches >= 2 else 'Weak'
-                })
+        high_slice = df['High'].iloc[i-window:i+window+1]
+        low_slice = df['Low'].iloc[i-window:i+window+1]
+        if df['High'].iloc[i] == high_slice.max() and high_slice.max() != high_slice.min():
+            pivot_highs.append(df['High'].iloc[i])
+        if df['Low'].iloc[i] == low_slice.min() and low_slice.min() != low_slice.max():
+            pivot_lows.append(df['Low'].iloc[i])
 
-        if df['Low'].iloc[i] == df['Low'].iloc[i-window:i+window+1].min():
-            level = df['Low'].iloc[i]
-            if not any(abs(level - l['level']) / level < threshold for l in levels):
-                touches = sum(abs(df['Low'] - level) / level < threshold)
-                levels.append({
-                    'level': level,
-                    'type': 'Support',
-                    'touches': touches,
-                    'strength': 'Strong' if touches >= 3 else 'Medium' if touches >= 2 else 'Weak'
-                })
+    def cluster_pivots(pivots, level_type):
+        if not pivots:
+            return []
+        pivots.sort()
+        clusters = [[pivots[0]]]
+        for p in pivots[1:]:
+            if abs(p - clusters[-1][-1]) / max(clusters[-1][-1], 1e-10) < threshold:
+                clusters[-1].append(p)
+            else:
+                clusters.append([p])
 
+        results = []
+        for c in clusters:
+            level = round(sum(c) / len(c), 5)
+            results.append({
+                'level': level,
+                'type': level_type,
+                'touches': len(c),
+                'strength': 'Strong' if len(c) >= 3 else 'Medium' if len(c) >= 2 else 'Weak'
+            })
+        return results
+
+    levels = cluster_pivots(pivot_highs, 'Resistance') + cluster_pivots(pivot_lows, 'Support')
     levels.sort(key=lambda x: x['touches'], reverse=True)
     return levels[:5]
 
