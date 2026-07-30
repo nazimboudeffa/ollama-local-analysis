@@ -12,8 +12,14 @@ def analyze_with_ai(signal_data):
 Data:
 {json.dumps(signal_data, indent=2)}
 
+Rules:
+- HOLD → set entry, stop_loss, take_profit to null
+- BUY  → take_profit > entry > stop_loss (ex: 1.15300 > 1.15100 > 1.14900)
+- SELL → stop_loss > entry > take_profit (ex: 1.14900 > 1.15100 > 1.15300)
+
+Use 5 decimals for prices.
 Respond with JSON only (no explanation):
-{{"signal": "BUY or SELL or HOLD", "confidence": 0-100, "reason": "brief reason based on price action", "entry": price, "stop_loss": price, "take_profit": price}}"""
+{{"signal": "BUY or SELL or HOLD", "confidence": 0-100, "reason": "brief reason", "entry": null, "stop_loss": null, "take_profit": null}}"""
 
     try:
         response = requests.post(
