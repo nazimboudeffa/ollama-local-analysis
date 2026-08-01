@@ -11,8 +11,8 @@ Documentation technique du projet d'analyse forex multi-timeframe. Lire dans l'o
 | 3 | [`indicateurs_techniques.md`](indicateurs_techniques.md) | **Math des indicateurs** — RSI, MACD, MA20 (formules et intégration) |
 | 4 | [`support_resistance.md`](support_resistance.md) | **Algorithme S/R** — swing points, clustering, scoring |
 | 5 | [`candlestick_patterns.md`](candlestick_patterns.md) | **Patterns de chandeliers** — Doji, Hammer, Engulfing, etc. |
-| 6 | [`analyse_avancee.md`](analyse_avancee.md) | **Analyse avancée** (`04_signal_avance.ipynb`) — 4 timeframes, Smart Money, scoring probabiliste, risque ATR, YAML enrichi |
-| 7 | [`prompt_ia.md`](prompt_ia.md) | **Prompt analyste** — méthode en 8 étapes, décision BUY/SELL/HOLD, réponse Markdown |
+| 6 | [`analyse_avancee.md`](analyse_avancee.md) | **Analyse Price Action** (`04_signal_price_action.ipynb`) — 4 timeframes, Smart Money, YAML Price Action pur, sauvegarde des rapports |
+| 7 | [`prompt_ia.md`](prompt_ia.md) | **Prompt Price Action** — structure, zones, réaction du prix, décision BUY/SELL/HOLD, réponse Markdown |
 
 ## Dépendances
 
@@ -25,7 +25,7 @@ signal_generation.md
       └──► candlestick_patterns.md
                   │
                   ▼
-      analyse_avancee.md   (extension : YAML enrichi + Smart Money + risque)
+      analyse_avancee.md   (Price Action : YAML pur + Smart Money)
                   │
                   ▼
       prompt_ia.md         (analyse IA en Markdown)

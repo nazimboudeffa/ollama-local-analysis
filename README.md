@@ -13,6 +13,7 @@ EURUSD, USDJPY, GBPUSD — configurables dans `lib/config.py`.
 | `01_scan_rapide.ipynb` | Scanne toutes les paires, affiche un tableau récapitulatif avec les signaux IA |
 | `02_signal_paire.ipynb` | Analyse détaillée d'une paire au choix (configurable en 1ʳᵉ cellule) |
 | `03_exemple_multi_tf.ipynb` | Exemple fixe EURUSD (référence) |
+| `04_signal_price_action.ipynb` | Analyse Price Action pure — 4 timeframes, Smart Money, rapport Markdown enregistré dans `rapports_ia/` |
 
 ## Installation
 
@@ -23,7 +24,7 @@ pip install -r requirements.txt
 Installe et lance [Ollama](https://ollama.ai/), puis tire le modèle :
 
 ```bash
-ollama pull qwen3:4b
+ollama pull gemma4
 ollama serve
 ```
 
@@ -33,15 +34,22 @@ ollama serve
 ├── 01_scan_rapide.ipynb         # Scan multi-paires
 ├── 02_signal_paire.ipynb        # Analyse d'une paire
 ├── 03_exemple_multi_tf.ipynb    # Exemple fixe EURUSD
+├── 04_signal_price_action.ipynb # Analyse Price Action pure + rapport IA
 ├── lib/
 │   ├── config.py                # Paires, timeframes, noms
 │   ├── data.py                  # Fetch OpenBB + cache pickle
 │   ├── analysis.py              # S/R, structure, patterns, signal
 │   └── ai.py                    # Analyse IA via Ollama
 ├── doc/
-│   ├── support_resistance.md    # Algorithme S/R
+│   ├── README.md                # Index de la documentation (ordre de lecture)
 │   ├── signal_generation.md     # Pipeline complet
-│   └── signal_parameters.md     # Paramètres du signal IA
+│   ├── signal_parameters.md     # Paramètres du signal IA
+│   ├── indicateurs_techniques.md# Math des indicateurs
+│   ├── support_resistance.md    # Algorithme S/R
+│   ├── candlestick_patterns.md  # Patterns de chandeliers
+│   ├── analyse_avancee.md       # Notebook 04 (Price Action)
+│   └── prompt_ia.md             # Prompt Price Action (Markdown)
+├── rapports_ia/                 # Rapports IA (date_modèle_paire.md)
 ├── data_cache/                  # Cache des données (60 min TTL)
 ├── _archive/                    # Anciens notebooks obsolètes
 ├── requirements.txt
@@ -53,7 +61,7 @@ ollama serve
 1. **Données** — `lib/data.py` : fetch via `obb.currency.price.historical()`, cache pickle 60 min
 2. **Analyse** — `lib/analysis.py` : S/R adaptatif (ATR + pivot clustering), structure de marché, patterns bougies
 3. **Signal** — Signal combiné multi-timeframe envoyé à Ollama
-4. **IA** — `lib/ai.py` : Qwen 3:4B, réponse JSON avec signal (BUY/SELL/HOLD), entrée, SL, TP
+4. **IA** — `lib/ai.py` : `gemma4` (réponse JSON pour 01/02/03), ou prompt Price Action Markdown dans `04_signal_price_action.ipynb`
 
 ## Configuration
 
@@ -61,7 +69,7 @@ ollama serve
 
 Le modèle Ollama se change dans `lib/ai.py` :
 ```python
-MODEL = "qwen3:4b"  # → qwen3:7b, llama3:8b, etc.
+MODEL = "gemma4"  # → gemma3:12b, llama3:8b, etc.
 ```
 
 ## AVERTISSEMENT IMPORTANT

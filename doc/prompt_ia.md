@@ -1,111 +1,76 @@
-# Prompt d'analyse IA (`04_signal_avance.ipynb` — cellule 10)
+# Prompt Price Action (`04_signal_price_action.ipynb` — cellule 10)
 
-Le prompt utilisé dans `04_signal_avance.ipynb` transforme le modèle local en **analyste professionnel Forex / Price Action / Smart Money Concepts (SMC)**. Contrairement à l'ancien prompt (`lib/ai.py`, sortie JSON), celui-ci impose une **réponse en Markdown structurée** et une méthode d'analyse complète en 8 étapes.
-
----
-
-## 1. Règles importantes
-
-- Analyser **uniquement** les données fournies, n'inventer **jamais** une donnée absente.
-- Information absente ou `null` → indiquer « indisponible ».
-- Indicateurs contradictoires → privilégier la **prudence** et **réduire la confiance**.
-- Les timeframes supérieurs ont toujours plus de poids : **Weekly > Daily > H1 > M15**.
-- Décision finale justifiée par une **confluence de facteurs**, pas un seul indicateur.
-- **Consolidation → HOLD**, sauf cassure ou confluence exceptionnelle.
-- **RR < 1.5 → HOLD**.
-- Ne jamais forcer un BUY ou un SELL.
+Le prompt transforme le modèle local en **trader professionnel spécialisé en Price Action Forex**. Il reçoit un signal YAML réduit (structure, zones, chandeliers, ATR) et répond en **Markdown** avec une lecture pure du comportement du prix — sans indicateurs statistiques.
 
 ---
 
-## 2. Méthode d'analyse (8 étapes imposées)
+## 1. Règles
 
-1. **Contexte général** — tendance dominante, structure de marché, alignement des timeframes.
-2. **Momentum** — RSI, MACD, ADX, DI+, DI-, Momentum → haussier / baissier / neutre / perte de momentum.
-3. **Volatilité** — ATR, volatilité → objectifs réalistes ou non.
-4. **EMA** — alignement, position du prix, tendance.
-5. **Smart Money** — Order Blocks, Liquidité, Equal Highs/Lows, Liquidity Sweeps, FVG → chasse à la liquidité probable ?
-6. **Supports / Résistances** — proximité, qualité, risque de rebond / de cassure.
-7. **Chandeliers** — patterns récents, plus de poids aux plus récents.
-8. **Confluence** — liste des facteurs `+` / `-` puis confiance 0–100.
-
-Exemple de confluence fourni au modèle :
-
-```
-+ MACD Daily Bullish
-+ RSI H1 > 50
-+ EMA H1 Bullish
-+ Support Daily Strong
-- Weekly Bearish
-- Momentum M15 négatif
-```
+- Analyser **uniquement** les informations fournies.
+- Déterminer s'il existe une opportunité basée **uniquement** sur :
+  - structure du marché
+  - supports et résistances
+  - zones de liquidité
+  - order blocks
+  - fair value gaps
+  - figures de chandeliers
+  - réaction du prix
 
 ---
 
-## 3. Décision
+## 2. Priorité d'analyse
 
-Une seule décision possible : **BUY / SELL / HOLD**.
+**A) Structure du prix**
+- Higher High / Higher Low = tendance haussière
+- Lower High / Lower Low = tendance baissière
+- absence de structure claire = **range**
 
-| Décision | Conditions |
-|---|---|
-| **BUY** | plusieurs timeframes haussiers + momentum favorable + confluence élevée + RR ≥ 1.5 |
-| **SELL** | plusieurs timeframes baissiers + momentum baissier + confluence élevée + RR ≥ 1.5 |
-| **HOLD** | sinon |
+**B) Zones importantes** — support, résistance, order block, FVG, liquidité au-dessus et en dessous du prix.
 
-### Si BUY ou SELL
+**C) Réaction du prix** — rejet d'une zone, pin bar, engulfing, cassure + retest, sweep de liquidité.
 
-Calculer : Entrée, Stop Loss, **Take Profit 1 / 2 / 3**, Risk Reward.
+**D) Entrée**
+- **Ne jamais entrer au milieu d'un range.**
+- Privilégier : achat sur support après confirmation, vente sur résistance après confirmation, cassure uniquement après clôture et retest.
 
-- **SL cohérent avec** : ATR, Support/Résistance, Smart Money, Structure.
-- **TP cohérents avec** : ATR, Supports, Résistances, FVG, Liquidité.
+**E) Gestion du risque**
+- **SL** placé derrière : dernier swing, zone d'invalidation, order block.
+- **TP** visant : prochaine liquidité, support/résistance opposé, FVG.
+- Si aucune configuration claire n'existe → **HOLD**.
 
 ---
 
-## 4. Format de réponse (Markdown)
+## 3. Format de réponse (Markdown)
 
 ```markdown
-# Résumé
-- Décision :
-- Confiance :
-- Tendance dominante :
-- Structure :
+## Analyse Price Action
 
-# Analyse
-## Tendances
-...
-## Momentum
-...
-## Smart Money
-...
-## Supports / Résistances
-...
-## Confluence
-...
+Contexte :
+Structure :
+Zone clé :
+Liquidité :
+Confirmation :
 
-# Signal
+## Décision
+
 Action : BUY / SELL / HOLD
+
 Entrée :
-Stop Loss :
-Take Profit 1 :
-Take Profit 2 :
-Take Profit 3 :
-Risk Reward :
+SL :
+TP :
+RR :
 
-# Justification
+## Raisonnement
+
+Expliquer en quelques lignes pourquoi le trade est valide ou pourquoi il faut attendre.
 ```
-
-Contraintes finales :
-- Ne jamais inventer une valeur.
-- Ne jamais utiliser d'informations extérieures au YAML.
-- Toujours expliquer les **contradictions** entre indicateurs.
 
 ---
 
-## 5. Intégration dans le notebook
-
-Le YAML du signal est sérialisé puis injecté à la fin du prompt :
+## 4. Intégration dans le notebook
 
 ```python
-prompt = f"""{...méthode et règles ci-dessus...}
+prompt = f"""{...règles et priorités ci-dessus...}
 ==========================
 Données (YAML)
 ==========================
@@ -123,21 +88,40 @@ requests.post(OLLAMA_URL, json={
 }, timeout=120)
 ```
 
-La réponse (Markdown) est affichée brute.
+La réponse (Markdown) est affichée brute puis sauvegardée dans `rapports_ia/` au format `AAAAMMJJ_HHMMSS_<modèle>_<paire>.md`.
 
 ---
 
-## 6. Différences avec l'ancien prompt (`lib/ai.py`)
+## 5. Champs YAML fournis au prompt
 
-| Aspect | Ancien (`lib/ai.py`, 01/02/03) | Nouveau (`04_signal_avance.ipynb`) |
+| Champ | Rôle |
+|---|---|
+| `price`, `session` | Où est le prix, quelle session |
+| `timeframes` | Contexte des timeframes analysés |
+| `structure` | Structure de marché par TF (trend/range) |
+| `trend` | Direction, force, score par TF |
+| `atr` | Volatilité (cohérence des objectifs) |
+| `ema` (optionnel) | Alignement + position du prix |
+| `support` / `resistance` | Niveaux les plus proches (pips) |
+| `smart_money.order_blocks` | Zones d'ordre |
+| `smart_money.liquidity` | Liquidité au-dessus/en dessous, sweeps |
+| `smart_money.fvg` | Fair Value Gaps |
+| `candlestick` | Patterns récents avec index de bougie |
+
+**Retirés volontairement** : RSI, MACD, ADX, DI+, DI-, Momentum, Volume, probabilités, zones/risque pré-calculés. Deux philosophies se mélangent mal : indicateurs = confirmation statistique, Price Action/SMC = lecture du comportement du prix.
+
+---
+
+## 6. Comparaison avec l'ancien prompt (avancé)
+
+| Aspect | Ancien (analyste SMC enrichi) | Nouveau (trader Price Action) |
 |---|---|---|
-| Rôle du modèle | Générateur de signal | Analyste professionnel (SMC) |
-| Format de sortie | JSON forcé (`format: json`) | **Markdown** structuré |
-| Analyse | Simple (prix + règles SL/TP) | 8 étapes complètes |
-| Confluence | Absente | Liste de facteurs + confiance 0–100 |
-| TP multiples | Un seul TP | **TP1 / TP2 / TP3** |
-| Règles de décision | Implicites | Explicites (RR ≥ 1.5, consolidation → HOLD…) |
-| `num_predict` | 500 | 2500 |
-| `temperature` | 0.1 | 0.2 |
+| Rôle | Analyste multi-critères | Trader Price Action pur |
+| Étapes d'analyse | 8 étapes (dont Momentum, EMA…) | Priorités A→E |
+| Indicateurs | RSI, MACD, ADX, DI+, Momentum | **Aucun** |
+| Décision | Règles explicites (RR ≥ 1.5…) | Contexte + confirmation, sinon HOLD |
+| Entrée | Calculée par l'IA (1 TP + RR) | Entrée / SL / TP / RR si configuration claire |
+| Format | `# Résumé` / `# Analyse` / `# Signal` | `## Analyse Price Action` / `## Décision` / `## Raisonnement` |
+| Longueur | ~200 lignes | ~90 lignes |
 
 > `01_scan_rapide.ipynb`, `02_signal_paire.ipynb` et `03_exemple_multi_tf.ipynb` continuent d'utiliser l'ancien prompt JSON via `lib/ai.py`.
