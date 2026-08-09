@@ -88,7 +88,7 @@ requests.post(OLLAMA_URL, json={
 }, timeout=120)
 ```
 
-La réponse (Markdown) est affichée brute puis sauvegardée dans `rapports_ia/` au format `AAAAMMJJ_HHMMSS_<modèle>_<paire>.md`.
+La réponse (Markdown) est affichée brute puis sauvegardée dans `rapports_ia/` au format `AAAAMMJJ_HHMMSS_<modèle>_<paire>.md`. Le YAML complet du signal est préfixé en **front matter** (`--- … ---`) au début du rapport, avant l'analyse de l'IA.
 
 ---
 

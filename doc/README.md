@@ -13,6 +13,7 @@ Documentation technique du projet d'analyse forex multi-timeframe. Lire dans l'o
 | 5 | [`candlestick_patterns.md`](candlestick_patterns.md) | **Patterns de chandeliers** — Doji, Hammer, Engulfing, etc. |
 | 6 | [`analyse_avancee.md`](analyse_avancee.md) | **Analyse Price Action** (`04_signal_price_action.ipynb`) — 4 timeframes, Smart Money, YAML Price Action pur, sauvegarde des rapports |
 | 7 | [`prompt_ia.md`](prompt_ia.md) | **Prompt Price Action** — structure, zones, réaction du prix, décision BUY/SELL/HOLD, réponse Markdown |
+| 8 | [`price_action_method.md`](price_action_method.md) | **Méthode Price Action** — synthèse de la méthode, concepts SMC, règles de décision |
 
 ## Dépendances
 
